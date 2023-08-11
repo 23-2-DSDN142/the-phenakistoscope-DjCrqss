@@ -7,13 +7,16 @@ function setup_pScope(pScope) {
   pScope.draw_layer_boundaries(true);
   pScope.set_direction(CCW);
   pScope.set_slice_count(SLICE_COUNT);
+  // set background to black
+  
 }
 
 function setup_layers(pScope) {
-  //new PLayer(null, 220);  //lets us draw the whole circle background, ignoring the boundaries
-
+  new PLayer(null, 220);  //lets us draw the whole circle background, ignoring the boundaries
   //pScope.load_image("wallpaper" , "png"); //SWIRL(5)
   colorMode(HSB, 360)
+
+  // fill_background(0, 0, 0); // black background
 
   // sky and grass
   var layer1 = new PLayer(bg);

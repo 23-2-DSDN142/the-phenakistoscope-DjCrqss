@@ -1,22 +1,23 @@
 const SLICE_COUNT = 10;
 var time = 0;
 
+// const output_mode = 'ANIMATED_FRAME';
+const output_mode = 'ANIMATED_DISK';
+
 function setup_pScope(pScope) {
-  pScope.output_mode(ANIMATED_DISK); //ANIMATED_DISK
+  // pScope.output_mode(ANIMATED_FRAME);
+  pScope.output_mode(ANIMATED_DISK);
+
   pScope.scale_for_screen(true);
   pScope.draw_layer_boundaries(true);
   pScope.set_direction(CCW);
   pScope.set_slice_count(SLICE_COUNT);
-  // set background to black
-  
 }
 
 function setup_layers(pScope) {
-  new PLayer(null, 220);  //lets us draw the whole circle background, ignoring the boundaries
+  //new PLayer(null, 220);  //lets us draw the whole circle background, ignoring the boundaries
   //pScope.load_image("wallpaper" , "png"); //SWIRL(5)
   colorMode(HSB, 360)
-
-  // fill_background(0, 0, 0); // black background
 
   // sky and grass
   var layer1 = new PLayer(bg);
@@ -39,27 +40,41 @@ function setup_layers(pScope) {
   var layer5 = new PLayer(fireflies);
   layer5.mode(RING);
 
+  if(output_mode == 'ANIMATED_FRAME' || output_mode == 'STATIC_FRAME'){
+    var layermask = new PLayer(mask);
+    layermask.mode(RING);
+  }
+
 }
 
 function bg(x, y, animation, pScope) {
+  if(output_mode == 'ANIMATED_FRAME' || output_mode == 'STATIC_FRAME'){
+    time += 20;
+  } else {
+    time += 2;
+  }
   // pScope.draw_image("wallpaper", 0,0);
   let angleOffset = (360 / SLICE_COUNT) / 2;
-  let backgroundArcStart = 270 + angleOffset;
-  let backgroundArcEnd = 270 - angleOffset;
+  let backgroundArcStart = 270 - angleOffset;
+  let backgroundArcEnd = 270 + angleOffset;
+
+  fill(265, 300, 30, 360);
+  arc(x, y, 2000, 2000, backgroundArcStart, backgroundArcEnd);
+
   push();
   radialGradient(
-    x, y, 700,//Start pX, pY, start circle radius
-    x, y, 1000,//End pX, pY, End circle radius
-    color(320, 300, 40, 100), //Start color
-    color(265, 300, 30, 100), //End color
+    x, y, 1000,//Start pX, pY, start circle radius
+    x, y, 2000,//End pX, pY, End circle radius
+    color(320, 300, 40, 360), //Start color
+    color(265, 300, 30, 360), //End color
   );
-  arc(x, y, 10000, 10000, backgroundArcStart, backgroundArcEnd);
+  arc(x, y, 2000, 2000, backgroundArcStart, backgroundArcEnd);
   pop();
 
   noStroke();
   fill(96, 135, 30)
   let landHeight = 1300;
-  arc(x, y, landHeight, landHeight, backgroundArcStart, backgroundArcEnd); // draws "pizza slice" in the background
+  arc(x, y, landHeight, landHeight, backgroundArcStart, backgroundArcEnd);
 }
 
 function moon(x, y, animation, pScope) {
@@ -72,34 +87,31 @@ function moon(x, y, animation, pScope) {
 
 
   push();
-  // drawingContext.filter = 'blur(20px)';
-  rotate(backgroundArcStart - (time / 200 % (360 / SLICE_COUNT)));
-  translate(0, moonHeight);
-  // drawMoonPhase();
+  rotate((-time / 200 % (angleOffset * 2)) + angleOffset);
+  translate(0, -moonHeight);
 
-  drawingContext.filter = 'none'
   drawMoonPhase();
   pop();
 
-  function drawMoonPhase(){
+  function drawMoonPhase() {
     let bg_color = color(265, 50, 20);
     let light_color = color(255, 0, 255);
     let moonRadius = 100;
-    
+
     noStroke();
     ellipseMode(CENTER);
-    
+
     // moon
-    a = (time/20)%360;
-      
+    a = (time / 20) % 360;
+
     noStroke();
-  
+
     let color1;
     let color2;
     let color3;
     let color4;
-    
-  
+
+
     if (270 < a && a <= 360) {
       color3 = light_color;
       color4 = light_color;
@@ -116,51 +128,51 @@ function moon(x, y, animation, pScope) {
       color1 = bg_color;
       color3 = bg_color;
     } else {
-      color4 = color(0,255,0,0);
+      color4 = color(0, 255, 0, 0);
       color3 = light_color;
       color1 = bg_color;
       color2 = light_color;
     }
-  
+
     // add glow
     drawingContext.filter = 'blur(20px)';
     fill(light_color);
     // circle(a/4, 0, moonRadius);
     circle(0, 0, moonRadius);
     drawingContext.filter = 'none';
-  
+
     fill(color1);
     circle(0, 0, moonRadius);
     // let widthMoonPhase = map(Math.sin(a), -1, 1, -moonRadius, moonRadius);
-    arc(0, 0, moonRadius, moonRadius, degrees(PI/2), degrees(3 * PI/2));
+    arc(0, 0, moonRadius, moonRadius, degrees(PI / 2), degrees(3 * PI / 2));
     fill(color2);
-    arc(0, 0, moonRadius, moonRadius, degrees(3 * PI/2), degrees(PI/2));
-  
-   
-  
+    arc(0, 0, moonRadius, moonRadius, degrees(3 * PI / 2), degrees(PI / 2));
+
+
+
     let heightPhase = moonRadius;
     let widthPhase = map(cos(a), 0, 1, 0, moonRadius);
-  
+
     fill(color3);
-    arc(0, 0, widthPhase - 2, heightPhase + 1, degrees(PI/2), degrees(3 * PI/2));
+    arc(0, 0, widthPhase - 2, heightPhase + 1, degrees(PI / 2), degrees(3 * PI / 2));
     fill(color4);
-    arc(0, 0, widthPhase - 2, heightPhase + 1, degrees(3 * PI/2), degrees(PI/2));
-  
+    arc(0, 0, widthPhase - 2, heightPhase + 1, degrees(3 * PI / 2), degrees(PI / 2));
+
     stroke(color3);
     noFill();
     strokeWeight(2);
-    line(0, -moonRadius/2, 0, moonRadius/2);
+    line(0, -moonRadius / 2, 0, moonRadius / 2);
   }
-  
+
 }
 
 function trees(x, y, animation, pScope) {
-  time++;
-
   let landHeight = 650;
   let angleOffset = (360 / SLICE_COUNT) / 2;
   let arcStart = 270 + angleOffset;
   let arcEnd = 270 - angleOffset;
+
+  // console.log(pScope.output_mode);
 
   noStroke();
 
@@ -172,36 +184,45 @@ function trees(x, y, animation, pScope) {
   let treeWidth = 30;
   let treeHeight = 140;
   let speed = 0.02;
-  drawTrees(treeCount, treeWidth, treeHeight, arcStart, arcEnd, landHeight, speed);
+  // drawTrees(treeCount, treeWidth, treeHeight, arcStart, arcEnd, landHeight, speed);
+  drawTrees(treeCount, treeWidth, treeHeight, arcStart + angleOffset / 2, arcEnd + angleOffset / 2, landHeight, speed, 0);
+  if (output_mode == 'ANIMATED_FRAME' || output_mode == 'STATIC_FRAME') {
+    drawTrees(treeCount, treeWidth, treeHeight, arcStart + angleOffset / 2, arcEnd + angleOffset / 2, landHeight, speed, 1);
+  }
 
   treeCount = 2;
   treeWidth = 20;
   treeHeight = 120;
   speed = 0.015;
-  drawTrees(treeCount, treeWidth, treeHeight, arcStart, arcEnd, landHeight, speed);
-
+  drawTrees(treeCount, treeWidth, treeHeight, arcStart + angleOffset / 2, arcEnd + angleOffset / 2, landHeight, speed, 0);
+  if (output_mode == 'ANIMATED_FRAME' || output_mode == 'STATIC_FRAME') {
+    drawTrees(treeCount, treeWidth, treeHeight, arcStart + angleOffset / 2, arcEnd + angleOffset / 2, landHeight, speed, 1);
+  }
   treeCount = 12;
   treeWidth = 10;
   treeHeight = 80;
   speed = 0.01;
-  drawTrees(treeCount, treeWidth, treeHeight, arcStart, arcEnd, landHeight, speed);
-
+  drawTrees(treeCount, treeWidth, treeHeight, arcStart + angleOffset / 2, arcEnd + angleOffset / 2, landHeight, speed, 0);
+  if (output_mode == 'ANIMATED_FRAME' || output_mode == 'STATIC_FRAME') {
+    drawTrees(treeCount, treeWidth, treeHeight, arcStart + angleOffset / 2, arcEnd + angleOffset / 2, landHeight, speed, 1);
+  }
 
   // draw trees from angle arcStart to arcEnd offset from the middle by landHeight
-  function drawTrees(treeCount, treeWidth, treeHeight, arcStart, arcEnd, landHeight, speed) {
+  function drawTrees(treeCount, treeWidth, treeHeight, arcStart, arcEnd, landHeight, speed, singleMode) {
     for (let i = 0; i < treeCount; i++) {
       push();
-      rotate((arcStart + (arcEnd - arcStart) / treeCount * i) + (time * speed % (360 / SLICE_COUNT)));
-      translate(0, landHeight);
+      let rotation = ((arcEnd - arcStart) / treeCount * i) + (time * speed % (360 / SLICE_COUNT));
+      rotate((-1.5 * angleOffset) + rotation % (angleOffset * 4) + (angleOffset * 2 * singleMode));
+      translate(0, -landHeight);
       // trunk
-      rect(0, 0, treeWidth, treeHeight);
+      rect(0, 0, treeWidth, -treeHeight);
       // leaves
-      triangle(-treeWidth + treeWidth / 2, treeHeight * 0.95, treeWidth / 2, treeHeight * 1.3, treeWidth + treeWidth / 2, treeHeight * 0.95 - 1);
-      triangle(-treeWidth * 2 + treeWidth / 2, treeHeight * 0.7, treeWidth / 2, treeHeight * 1.1, treeWidth * 2 + treeWidth / 2, treeHeight * 0.7 - 1);
-      triangle(-treeWidth * 3 + treeWidth / 2, treeHeight * 0.34, treeWidth / 2, treeHeight * 0.8, treeWidth * 3 + treeWidth / 2, treeHeight * 0.34 - 1);
+      triangle(-treeWidth + treeWidth / 2, -treeHeight * 0.95, treeWidth / 2, -treeHeight * 1.3, treeWidth + treeWidth / 2, -treeHeight * 0.95 - 1);
+      triangle(-treeWidth * 2 + treeWidth / 2, -treeHeight * 0.7, treeWidth / 2, -treeHeight * 1.1, treeWidth * 2 + treeWidth / 2, -treeHeight * 0.7 - 1);
+      triangle(-treeWidth * 3 + treeWidth / 2, -treeHeight * 0.34, treeWidth / 2, -treeHeight * 0.8, treeWidth * 3 + treeWidth / 2, -treeHeight * 0.34 - 1);
       pop();
     }
-  
+
   }
 }
 
@@ -289,35 +310,60 @@ function fireflies(x, y, animation, pScope) {
   let fireflySize = 10;
   let fireflySpeed = 0.005;
   let fireflyHeight = 650;
-  drawFireflies(fireflyCount, fireflySize, fireflySpeed, fireflyHeight);
+  drawFireflies(fireflyCount, fireflySize, backgroundArcStart + angleOffset / 2, backgroundArcEnd + angleOffset / 2, fireflySpeed, fireflyHeight, 0);
+  if (output_mode == 'ANIMATED_FRAME' || output_mode == 'STATIC_FRAME') {
+    drawFireflies(fireflyCount, fireflySize, backgroundArcStart + angleOffset / 2, backgroundArcEnd + angleOffset / 2, fireflySpeed, fireflyHeight, 1);
+  }
   fireflyHeight = 700;
   fireflySpeed = 0.01;
   fireflySize = 9;
   fireflyCount = 1;
-  drawFireflies(fireflyCount, fireflySize, fireflySpeed, fireflyHeight);
+  drawFireflies(fireflyCount, fireflySize, backgroundArcStart + angleOffset / 2, backgroundArcEnd + angleOffset / 2, fireflySpeed, fireflyHeight, 0);
+  if (output_mode == 'ANIMATED_FRAME' || output_mode == 'STATIC_FRAME') {
+    drawFireflies(fireflyCount, fireflySize, backgroundArcStart + angleOffset / 2, backgroundArcEnd + angleOffset / 2, fireflySpeed, fireflyHeight, 1);
+  }
   fireflyHeight = 600;
   fireflySpeed = 0.015;
   fireflySize = 9;
   fireflyCount = 1;
-  drawFireflies(fireflyCount, fireflySize, fireflySpeed, fireflyHeight);
+  drawFireflies(fireflyCount, fireflySize, backgroundArcStart + angleOffset / 2, backgroundArcEnd + angleOffset / 2, fireflySpeed, fireflyHeight, 0);
+  if (output_mode == 'ANIMATED_FRAME' || output_mode == 'STATIC_FRAME') {
+    drawFireflies(fireflyCount, fireflySize, backgroundArcStart + angleOffset / 2, backgroundArcEnd + angleOffset / 2, fireflySpeed, fireflyHeight, 1);
+  }
+  function drawFireflies(fireflyCount, fireflySize, arcStart, arcEnd, fireflySpeed, fireflyHeight, singleMode) {
 
-  function drawFireflies(fireflyCount, fireflySize, fireflySpeed, fireflyHeight) {
-    
     noStroke();
     for (let i = 0; i < fireflyCount; i++) {
       push();
-      rotate((backgroundArcStart + (backgroundArcEnd - backgroundArcStart) / fireflyCount * i) + (time * fireflySpeed % (360 / SLICE_COUNT)));
-      translate(0, fireflyHeight + cos(time/2 + i*90) * 10);
+      let rotation = ((arcEnd - arcStart) / fireflyCount * i) + (time * fireflySpeed % (360 / SLICE_COUNT));
+      rotate((-1.5 * angleOffset) + rotation % (angleOffset * 4) + (angleOffset * 2 * singleMode));
+      translate(0, -fireflyHeight - cos(time / 2 + i * 90) * 10);
       // blur
       fill(20, 300, 360);
       drawingContext.filter = 'blur(20px)';
-      rect(-fireflySize*2, -fireflySize, fireflySize*4, fireflySize*4);
+      rect(-fireflySize * 2, -fireflySize, fireflySize * 4, fireflySize * 4);
       fill(20, 300, 250);
       drawingContext.filter = 'none';
       rect(0, 0, fireflySize, fireflySize);
       pop();
     }
   }
+}
+
+function mask(x, y, animation, pScope) {
+  let angleOffset = (360 / SLICE_COUNT) / 2;
+  let arcStart = 270 + angleOffset;
+  let arcEnd = 270 - angleOffset;
+
+  fill(255);
+  noStroke();
+  arc(x, y, 2000, 2000, arcStart, arcEnd);
+
+
+
+
+
+
 }
 
 

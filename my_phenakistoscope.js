@@ -1,6 +1,7 @@
 const SLICE_COUNT = 10;
+var time = 0;
 
-function setup_pScope(pScope){
+function setup_pScope(pScope) {
   pScope.output_mode(ANIMATED_DISK); //ANIMATED_DISK
   pScope.scale_for_screen(true);
   pScope.draw_layer_boundaries(true);
@@ -8,36 +9,40 @@ function setup_pScope(pScope){
   pScope.set_slice_count(SLICE_COUNT);
 }
 
-function setup_layers(pScope){
-  
+function setup_layers(pScope) {
   //new PLayer(null, 220);  //lets us draw the whole circle background, ignoring the boundaries
 
   //pScope.load_image("wallpaper" , "png"); //SWIRL(5)
   colorMode(HSB, 360)
 
+  // sky and grass
   var layer1 = new PLayer(bg);
-  layer1.mode( RING  );
-  // layer1.set_boundary( 200, 1000 );
+  layer1.mode(RING);
 
+  // moon
   var layer4 = new PLayer(moon);
-  layer4.mode( RING  );
+  layer4.mode(RING);
 
-
+  // lake
   var layer2 = new PLayer(lake);
-  layer2.mode( RING  );
-  // layer2.set_boundary( 300, 400 );
+  layer2.mode(RING);
   strokeCap(SQUARE);
 
+  // trees
   var layer3 = new PLayer(trees);
-  layer3.mode( RING  );
+  layer3.mode(RING);
+
+  // fireflies
+  var layer5 = new PLayer(fireflies);
+  layer5.mode(RING);
 
 }
 
-function bg(x, y, animation, pScope){
+function bg(x, y, animation, pScope) {
   // pScope.draw_image("wallpaper", 0,0);
   let angleOffset = (360 / SLICE_COUNT) / 2;
   let backgroundArcStart = 270 + angleOffset;
-  let backgroundArcEnd = 270 -angleOffset;
+  let backgroundArcEnd = 270 - angleOffset;
   push();
   radialGradient(
     x, y, 700,//Start pX, pY, start circle radius
@@ -45,44 +50,118 @@ function bg(x, y, animation, pScope){
     color(320, 300, 40, 100), //Start color
     color(265, 300, 30, 100), //End color
   );
-  arc(x,y,10000,10000,backgroundArcStart,backgroundArcEnd);
+  arc(x, y, 10000, 10000, backgroundArcStart, backgroundArcEnd);
   pop();
 
   noStroke();
   fill(96, 135, 30)
   let landHeight = 1300;
-  arc(x,y,landHeight,landHeight,backgroundArcStart,backgroundArcEnd); // draws "pizza slice" in the background
+  arc(x, y, landHeight, landHeight, backgroundArcStart, backgroundArcEnd); // draws "pizza slice" in the background
 }
 
-function moon(x, y, animation, pScope){
+function moon(x, y, animation, pScope) {
   let angleOffset = (360 / SLICE_COUNT) / 2;
   let backgroundArcStart = 270 + angleOffset;
-  let backgroundArcEnd = 270 -angleOffset;
+  let backgroundArcEnd = 270 - angleOffset;
   // draw moon
   let moonRadius = 100;
   let moonHeight = 800;
-  push();
-    rotate(backgroundArcStart - (time/200 % (360 / SLICE_COUNT)));
-    fill(255, 0, 255);
-    translate(0, moonHeight);
-    ellipse(0, 0, moonRadius, moonRadius);
 
+
+  push();
+  // drawingContext.filter = 'blur(20px)';
+  rotate(backgroundArcStart - (time / 200 % (360 / SLICE_COUNT)));
+  translate(0, moonHeight);
+  // drawMoonPhase();
+
+  drawingContext.filter = 'none'
+  drawMoonPhase();
   pop();
+
+  function drawMoonPhase(){
+    let bg_color = color(265, 50, 20);
+    let light_color = color(255, 0, 255);
+    let moonRadius = 100;
+    
+    noStroke();
+    ellipseMode(CENTER);
+    
+    // moon
+    a = (time/20)%360;
+      
+    noStroke();
+  
+    let color1;
+    let color2;
+    let color3;
+    let color4;
+    
+  
+    if (270 < a && a <= 360) {
+      color3 = light_color;
+      color4 = light_color;
+      color1 = light_color;
+      color2 = bg_color;
+    } else if (180 < a && a <= 270) {
+      color1 = light_color;
+      color3 = bg_color;
+      color4 = bg_color;
+      color2 = bg_color;
+    } else if (90 < a && a <= 180) {
+      color4 = bg_color;
+      color2 = light_color;
+      color1 = bg_color;
+      color3 = bg_color;
+    } else {
+      color4 = color(0,255,0,0);
+      color3 = light_color;
+      color1 = bg_color;
+      color2 = light_color;
+    }
+  
+    // add glow
+    drawingContext.filter = 'blur(20px)';
+    fill(light_color);
+    // circle(a/4, 0, moonRadius);
+    circle(0, 0, moonRadius);
+    drawingContext.filter = 'none';
+  
+    fill(color1);
+    circle(0, 0, moonRadius);
+    // let widthMoonPhase = map(Math.sin(a), -1, 1, -moonRadius, moonRadius);
+    arc(0, 0, moonRadius, moonRadius, degrees(PI/2), degrees(3 * PI/2));
+    fill(color2);
+    arc(0, 0, moonRadius, moonRadius, degrees(3 * PI/2), degrees(PI/2));
+  
+   
+  
+    let heightPhase = moonRadius;
+    let widthPhase = map(cos(a), 0, 1, 0, moonRadius);
+  
+    fill(color3);
+    arc(0, 0, widthPhase - 2, heightPhase + 1, degrees(PI/2), degrees(3 * PI/2));
+    fill(color4);
+    arc(0, 0, widthPhase - 2, heightPhase + 1, degrees(3 * PI/2), degrees(PI/2));
+  
+    stroke(color3);
+    noFill();
+    strokeWeight(2);
+    line(0, -moonRadius/2, 0, moonRadius/2);
+  }
+  
 }
 
-var time = 0;
-
-function trees(x, y, animation, pScope){
+function trees(x, y, animation, pScope) {
   time++;
-  
+
   let landHeight = 650;
   let angleOffset = (360 / SLICE_COUNT) / 2;
   let arcStart = 270 + angleOffset;
-  let arcEnd = 270 -angleOffset;
+  let arcEnd = 270 - angleOffset;
 
   noStroke();
 
-  fill(16 ,200, 20);
+  fill(16, 200, 20);
   // fill(0, 0, 255)
 
   // draw trees from angle arcStart to arcEnd offset from the middle by landHeight
@@ -103,35 +182,36 @@ function trees(x, y, animation, pScope){
   treeHeight = 80;
   speed = 0.01;
   drawTrees(treeCount, treeWidth, treeHeight, arcStart, arcEnd, landHeight, speed);
+
+
+  // draw trees from angle arcStart to arcEnd offset from the middle by landHeight
+  function drawTrees(treeCount, treeWidth, treeHeight, arcStart, arcEnd, landHeight, speed) {
+    for (let i = 0; i < treeCount; i++) {
+      push();
+      rotate((arcStart + (arcEnd - arcStart) / treeCount * i) + (time * speed % (360 / SLICE_COUNT)));
+      translate(0, landHeight);
+      // trunk
+      rect(0, 0, treeWidth, treeHeight);
+      // leaves
+      triangle(-treeWidth + treeWidth / 2, treeHeight * 0.95, treeWidth / 2, treeHeight * 1.3, treeWidth + treeWidth / 2, treeHeight * 0.95 - 1);
+      triangle(-treeWidth * 2 + treeWidth / 2, treeHeight * 0.7, treeWidth / 2, treeHeight * 1.1, treeWidth * 2 + treeWidth / 2, treeHeight * 0.7 - 1);
+      triangle(-treeWidth * 3 + treeWidth / 2, treeHeight * 0.34, treeWidth / 2, treeHeight * 0.8, treeWidth * 3 + treeWidth / 2, treeHeight * 0.34 - 1);
+      pop();
+    }
   
-}
-
-function drawTrees(treeCount, treeWidth, treeHeight, arcStart, arcEnd, landHeight, speed){
-  for(let i = 0; i < treeCount; i++){
-    push();
-    rotate((arcStart + (arcEnd - arcStart) / treeCount * i) + (time*speed % (360 / SLICE_COUNT)) );
-    translate(0, landHeight);
-    // trunk
-    rect(0, 0, treeWidth, treeHeight);
-    // leaves
-    triangle(-treeWidth + treeWidth/2,  treeHeight * 0.95, treeWidth/2, treeHeight*1.3, treeWidth + treeWidth/2,  treeHeight* 0.95 - 1);
-    triangle(-treeWidth*2 + treeWidth/2, treeHeight*0.7, treeWidth/2, treeHeight*1.1, treeWidth*2 + treeWidth/2, treeHeight*0.7 - 1);
-    triangle(-treeWidth*3 + treeWidth/2, treeHeight*0.34, treeWidth/2, treeHeight*0.8, treeWidth*3 + treeWidth/2, treeHeight*0.34 - 1);
-    pop();
   }
-
 }
 
-function lake(x, y, animation, pScope){
+function lake(x, y, animation, pScope) {
 
   // this is how you set up a background for a specific layer
   let angleOffset = (360 / SLICE_COUNT) / 2;
   let backgroundArcStart = 270 + angleOffset;
-  let backgroundArcEnd = 270 -angleOffset;
+  let backgroundArcEnd = 270 - angleOffset;
 
 
   noStroke();
-  
+
   // create shape
   let startAngle = 270
   let waterLevel = 500;
@@ -141,8 +221,8 @@ function lake(x, y, animation, pScope){
   fill(200, 100, 50, 360);
   beginShape();
   vertex(x, y);
-  for(let angle = 0; angle < 360/SLICE_COUNT; angle += 0.5){
-    let radius = waterLevel+ 35 +  cos(angle*11 + (animation.frame * 360) + 50) * waveHeight ;
+  for (let angle = 0; angle < 360 / SLICE_COUNT; angle += 0.5) {
+    let radius = waterLevel + 35 + cos(angle * 11 + time / 2 + 50) * waveHeight;
     vertex(radius * cos(startAngle - angle + angleOffset), radius * sin(startAngle - angle + angleOffset));
   }
   vertex(x, y);
@@ -151,8 +231,8 @@ function lake(x, y, animation, pScope){
   fill(180, 170, 90, 80);
   beginShape();
   vertex(x, y);
-  for(let angle = 0; angle < 360/SLICE_COUNT; angle += 0.5){
-    let radius = waterLevel + 25 +  cos(angle*10 + (animation.frame * 360) + 180) * waveHeight ;
+  for (let angle = 0; angle < 360 / SLICE_COUNT; angle += 0.5) {
+    let radius = waterLevel + 25 + cos(angle * 18 + time / 4 + 180) * waveHeight;
     vertex(radius * cos(startAngle - angle + angleOffset), radius * sin(startAngle - angle + angleOffset));
   }
   vertex(x, y);
@@ -161,8 +241,8 @@ function lake(x, y, animation, pScope){
   fill(200, 220, 100, 80);
   beginShape();
   vertex(x, y);
-  for(let angle = 0; angle < 360/SLICE_COUNT; angle += 0.5){
-    let radius = waterLevel +  cos(angle*9 + (animation.frame * 360)) * waveHeight ;
+  for (let angle = 0; angle < 360 / SLICE_COUNT; angle += 0.5) {
+    let radius = waterLevel + cos(angle * 9 + time / 3) * waveHeight;
     vertex(radius * cos(startAngle - angle + angleOffset), radius * sin(startAngle - angle + angleOffset));
   }
   vertex(x, y);
@@ -173,13 +253,13 @@ function lake(x, y, animation, pScope){
   radialGradient(
     x, y, 0,//Start pX, pY, start circle radius
     x, y, waterLevel * 2,//End pX, pY, End circle radius
-    color(0,0,0, 200), //Start color
+    color(0, 0, 0, 200), //Start color
     color(180, 208, 150, 80), //End color
   );
   beginShape();
   vertex(x, y);
-  for(let angle = 0; angle < 360/SLICE_COUNT; angle += 0.5){
-    let radius = waterLevel - 20 +  cos(angle*18 + (animation.frame * 360) + 80) * waveHeight ;
+  for (let angle = 0; angle < 360 / SLICE_COUNT; angle += 0.5) {
+    let radius = waterLevel - 20 + cos(angle * 18 + time + 80) * waveHeight;
     vertex(radius * cos(startAngle - angle + angleOffset), radius * sin(startAngle - angle + angleOffset));
   }
   vertex(x, y);
@@ -196,6 +276,49 @@ function lake(x, y, animation, pScope){
 }
 
 
+function fireflies(x, y, animation, pScope) {
+  let angleOffset = (360 / SLICE_COUNT) / 2;
+  let backgroundArcStart = 270 + angleOffset;
+  let backgroundArcEnd = 270 - angleOffset;
+
+  // draw fireflies
+  let fireflyCount = 2;
+  let fireflySize = 10;
+  let fireflySpeed = 0.005;
+  let fireflyHeight = 650;
+  drawFireflies(fireflyCount, fireflySize, fireflySpeed, fireflyHeight);
+  fireflyHeight = 700;
+  fireflySpeed = 0.01;
+  fireflySize = 9;
+  fireflyCount = 1;
+  drawFireflies(fireflyCount, fireflySize, fireflySpeed, fireflyHeight);
+  fireflyHeight = 600;
+  fireflySpeed = 0.015;
+  fireflySize = 9;
+  fireflyCount = 1;
+  drawFireflies(fireflyCount, fireflySize, fireflySpeed, fireflyHeight);
+
+  function drawFireflies(fireflyCount, fireflySize, fireflySpeed, fireflyHeight) {
+    
+    noStroke();
+    for (let i = 0; i < fireflyCount; i++) {
+      push();
+      rotate((backgroundArcStart + (backgroundArcEnd - backgroundArcStart) / fireflyCount * i) + (time * fireflySpeed % (360 / SLICE_COUNT)));
+      translate(0, fireflyHeight + cos(time/2 + i*90) * 10);
+      // blur
+      fill(20, 300, 360);
+      drawingContext.filter = 'blur(20px)';
+      rect(-fireflySize*2, -fireflySize, fireflySize*4, fireflySize*4);
+      fill(20, 300, 250);
+      drawingContext.filter = 'none';
+      rect(0, 0, fireflySize, fireflySize);
+      pop();
+    }
+  }
+}
+
+
+// HELPER FUNCTIONS
 /** 
  * draws a linear gradient given starting and ending X and Y coordinates and colours
  * uses javascript's drawing context rather than p5 as it is much more efficient
@@ -216,7 +339,7 @@ function linearGradient(sX, sY, eX, eY, colorS, colorE) {
 }
 
 
-function radialGradient(sX, sY, sR, eX, eY, eR, colorS, colorE){
+function radialGradient(sX, sY, sR, eX, eY, eR, colorS, colorE) {
   let gradient = drawingContext.createRadialGradient(
     sX, sY, sR, eX, eY, eR
   );

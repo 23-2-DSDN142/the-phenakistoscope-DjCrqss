@@ -9,21 +9,28 @@ function setup_pScope(pScope){
 }
 
 function setup_layers(pScope){
+  
+  //new PLayer(null, 220);  //lets us draw the whole circle background, ignoring the boundaries
 
-  new PLayer(null, 220);  //lets us draw the whole circle background, ignoring the boundaries
-
-  pScope.load_image("wallpaper" , "png"); //SWIRL(5)
+  //pScope.load_image("wallpaper" , "png"); //SWIRL(5)
+  colorMode(HSB, 360)
 
   var layer1 = new PLayer(bg);
   layer1.mode( RING  );
   // layer1.set_boundary( 200, 1000 );
+
+  var layer4 = new PLayer(moon);
+  layer4.mode( RING  );
+
 
   var layer2 = new PLayer(lake);
   layer2.mode( RING  );
   // layer2.set_boundary( 300, 400 );
   strokeCap(SQUARE);
 
-  colorMode(HSB, 360)
+  var layer3 = new PLayer(trees);
+  layer3.mode( RING  );
+
 }
 
 function bg(x, y, animation, pScope){
@@ -45,6 +52,74 @@ function bg(x, y, animation, pScope){
   fill(96, 135, 30)
   let landHeight = 1300;
   arc(x,y,landHeight,landHeight,backgroundArcStart,backgroundArcEnd); // draws "pizza slice" in the background
+}
+
+function moon(x, y, animation, pScope){
+  let angleOffset = (360 / SLICE_COUNT) / 2;
+  let backgroundArcStart = 270 + angleOffset;
+  let backgroundArcEnd = 270 -angleOffset;
+  // draw moon
+  let moonRadius = 100;
+  let moonHeight = 800;
+  push();
+    rotate(backgroundArcStart - (time/200 % (360 / SLICE_COUNT)));
+    fill(255, 0, 255);
+    translate(0, moonHeight);
+    ellipse(0, 0, moonRadius, moonRadius);
+
+  pop();
+}
+
+var time = 0;
+
+function trees(x, y, animation, pScope){
+  time++;
+  
+  let landHeight = 650;
+  let angleOffset = (360 / SLICE_COUNT) / 2;
+  let arcStart = 270 + angleOffset;
+  let arcEnd = 270 -angleOffset;
+
+  noStroke();
+
+  fill(16 ,200, 20);
+  // fill(0, 0, 255)
+
+  // draw trees from angle arcStart to arcEnd offset from the middle by landHeight
+  let treeCount = 3;
+  let treeWidth = 30;
+  let treeHeight = 140;
+  let speed = 0.02;
+  drawTrees(treeCount, treeWidth, treeHeight, arcStart, arcEnd, landHeight, speed);
+
+  treeCount = 2;
+  treeWidth = 20;
+  treeHeight = 120;
+  speed = 0.015;
+  drawTrees(treeCount, treeWidth, treeHeight, arcStart, arcEnd, landHeight, speed);
+
+  treeCount = 12;
+  treeWidth = 10;
+  treeHeight = 80;
+  speed = 0.01;
+  drawTrees(treeCount, treeWidth, treeHeight, arcStart, arcEnd, landHeight, speed);
+  
+}
+
+function drawTrees(treeCount, treeWidth, treeHeight, arcStart, arcEnd, landHeight, speed){
+  for(let i = 0; i < treeCount; i++){
+    push();
+    rotate((arcStart + (arcEnd - arcStart) / treeCount * i) + (time*speed % (360 / SLICE_COUNT)) );
+    translate(0, landHeight);
+    // trunk
+    rect(0, 0, treeWidth, treeHeight);
+    // leaves
+    triangle(-treeWidth + treeWidth/2,  treeHeight * 0.95, treeWidth/2, treeHeight*1.3, treeWidth + treeWidth/2,  treeHeight* 0.95 - 1);
+    triangle(-treeWidth*2 + treeWidth/2, treeHeight*0.7, treeWidth/2, treeHeight*1.1, treeWidth*2 + treeWidth/2, treeHeight*0.7 - 1);
+    triangle(-treeWidth*3 + treeWidth/2, treeHeight*0.34, treeWidth/2, treeHeight*0.8, treeWidth*3 + treeWidth/2, treeHeight*0.34 - 1);
+    pop();
+  }
+
 }
 
 function lake(x, y, animation, pScope){

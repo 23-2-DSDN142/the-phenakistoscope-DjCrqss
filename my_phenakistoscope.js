@@ -1,13 +1,12 @@
 const SLICE_COUNT = 12;
-var time = 0;
 
+// activates mask for frame views
 const output_mode = 'ANIMATED_DISK';
 
 function setup_pScope(pScope) {
   pScope.output_mode(ANIMATED_DISK);
-
   pScope.scale_for_screen(true);
-  pScope.draw_layer_boundaries(true);
+  pScope.draw_layer_boundaries(false);
   pScope.set_direction(CCW);
   pScope.set_slice_count(SLICE_COUNT);
 }
@@ -24,9 +23,13 @@ function setup_layers(pScope) {
   layer4.mode(RING);
 
   // lake
-  // var layer2 = new PLayer(lake);
-  // layer2.mode(RING);
-  // strokeCap(SQUARE);
+  var layer2 = new PLayer(lake);
+  layer2.mode(RING);
+  strokeCap(SQUARE);
+
+  var layer6 = new PLayer(bubbles);
+  layer6.set_boundary(0, 400);
+  layer6.mode(SWIRL(10));
 
   // // trees
   var layer3 = new PLayer(trees);
@@ -232,15 +235,16 @@ function lake(x, y, animation, pScope) {
 
   // create shape
   let startAngle = 270
-  let waterLevel = 500;
+  let waterLevel = 450;
   let waveHeight = 12;
+  let time = animation.frame * 360;
 
 
   fill(200, 100, 50, 360);
   beginShape();
   vertex(x, y);
-  for (let angle = 0; angle < 360 / SLICE_COUNT; angle += 0.5) {
-    let radius = waterLevel + 35 + cos(angle * 11 + time / 2 + 50) * waveHeight;
+  for (let angle = 0; angle <= 360 / SLICE_COUNT; angle += 0.5) {
+    let radius = waterLevel + 35 + cos(angle * 12 + time + 50) * waveHeight;
     vertex(radius * cos(startAngle - angle + angleOffset), radius * sin(startAngle - angle + angleOffset));
   }
   vertex(x, y);
@@ -249,8 +253,8 @@ function lake(x, y, animation, pScope) {
   fill(180, 170, 90, 80);
   beginShape();
   vertex(x, y);
-  for (let angle = 0; angle < 360 / SLICE_COUNT; angle += 0.5) {
-    let radius = waterLevel + 25 + cos(angle * 18 + time / 4 + 180) * waveHeight;
+  for (let angle = 0; angle <= 360 / SLICE_COUNT; angle += 0.5) {
+    let radius = waterLevel + 25 + cos(angle * 12 + time + 180) * waveHeight;
     vertex(radius * cos(startAngle - angle + angleOffset), radius * sin(startAngle - angle + angleOffset));
   }
   vertex(x, y);
@@ -259,8 +263,8 @@ function lake(x, y, animation, pScope) {
   fill(200, 220, 100, 80);
   beginShape();
   vertex(x, y);
-  for (let angle = 0; angle < 360 / SLICE_COUNT; angle += 0.5) {
-    let radius = waterLevel + cos(angle * 9 + time / 3) * waveHeight;
+  for (let angle = 0; angle <= 360 / SLICE_COUNT; angle += 0.5) {
+    let radius = waterLevel + cos(angle * 12 + time) * waveHeight;
     vertex(radius * cos(startAngle - angle + angleOffset), radius * sin(startAngle - angle + angleOffset));
   }
   vertex(x, y);
@@ -277,7 +281,7 @@ function lake(x, y, animation, pScope) {
   beginShape();
   vertex(x, y);
   for (let angle = 0; angle < 360 / SLICE_COUNT; angle += 0.5) {
-    let radius = waterLevel - 20 + cos(angle * 18 + time + 80) * waveHeight;
+    let radius = waterLevel - 20 + cos(angle * 12 + time + 80) * waveHeight;
     vertex(radius * cos(startAngle - angle + angleOffset), radius * sin(startAngle - angle + angleOffset));
   }
   vertex(x, y);
@@ -340,6 +344,16 @@ function fireflies(x, y, animation, pScope) {
       pop();
     }
   }
+}
+
+
+function bubbles(x, y, animation, pScope) {
+  // animation.frame goes from 0 to 1, let brightness go from 0 to 1 and back to 0
+  let brightness = Math.sin(animation.frame * PI);
+
+  noStroke();
+  fill(180, 150, 255, brightness * 80);
+  circle(x + animation.wave(1.1) * 100, y, 7);
 }
 
 function mask(x, y, animation, pScope) {

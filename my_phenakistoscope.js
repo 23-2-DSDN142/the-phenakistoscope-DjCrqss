@@ -51,12 +51,10 @@ function bg(x, y, animation, pScope) {
   let backgroundArcStart = 270 - angleOffset;
   let backgroundArcEnd = 270 + angleOffset;
 
-  fill(265, 300, 30, 360);
-  arc(x, y, 2000, 2000, backgroundArcStart, backgroundArcEnd);
 
   push();
   radialGradient(
-    x, y, 1000,//Start pX, pY, start circle radius
+    x, y, 1200,//Start pX, pY, start circle radius
     x, y, 2000,//End pX, pY, End circle radius
     color(320, 300, 40, 360), //Start color
     color(265, 300, 30, 360), //End color
@@ -66,7 +64,7 @@ function bg(x, y, animation, pScope) {
 
   noStroke();
   fill(96, 135, 30)
-  let landHeight = 1240;
+  let landHeight = 1050;
   arc(x, y, landHeight, landHeight, backgroundArcStart, backgroundArcEnd);
 }
 
@@ -75,7 +73,6 @@ function moon(x, y, animation, pScope) {
   let backgroundArcStart = 270 + angleOffset;
   let backgroundArcEnd = 270 - angleOffset;
   // draw moon
-  let moonRadius = 100;
   let moonHeight = 800;
 
   const moonAngle = ((-animation.frame * (angleOffset * 2)) + angleOffset);
@@ -97,9 +94,9 @@ function moon(x, y, animation, pScope) {
 
 
   function drawMoonPhase() {
-    let bg_color = color(265, 50, 20);
-    let light_color = color(255, 0, 255);
-    let moonRadius = 100;
+    let dark = color(295, 180, 45);
+    let light = color(255, 0, 280);
+    let moonRadius = 180;
 
     noStroke();
     ellipseMode(CENTER);
@@ -113,35 +110,33 @@ function moon(x, y, animation, pScope) {
     let color2;
     let color3;
     let color4;
-
-
     if (270 < a && a <= 360) {
-      color3 = light_color;
-      color4 = light_color;
-      color1 = light_color;
-      color2 = bg_color;
+      color3 = light;
+      color4 = light;
+      color1 = light;
+      color2 = dark;
     } else if (180 < a && a <= 270) {
-      color1 = light_color;
-      color3 = bg_color;
-      color4 = bg_color;
-      color2 = bg_color;
+      color1 = light;
+      color3 = dark;
+      color4 = dark;
+      color2 = dark;
     } else if (90 < a && a <= 180) {
-      color4 = bg_color;
-      color2 = light_color;
-      color1 = bg_color;
-      color3 = bg_color;
+      color4 = dark;
+      color2 = light;
+      color1 = dark;
+      color3 = dark;
     } else {
-      color4 = color(0, 255, 0, 0);
-      color3 = light_color;
-      color1 = bg_color;
-      color2 = light_color;
+      color4 = light;
+      color3 = light;
+      color1 = dark;
+      color2 = light;
     }
 
     // add glow
-    drawingContext.filter = 'blur(20px)';
-    fill(light_color);
+    drawingContext.filter = 'blur(18px)';
+    fill(light);
     // circle(a/4, 0, moonRadius);
-    circle(0, 0, moonRadius);
+    circle(0, 0, moonRadius/1.2);
     drawingContext.filter = 'none';
 
     fill(color1);
@@ -170,7 +165,7 @@ function moon(x, y, animation, pScope) {
 }
 
 function trees(x, y, animation, pScope) {
-  let landHeight = 620;
+  let landHeight = 525;
   let angleOffset = (360 / SLICE_COUNT) / 2;
   let arcStart = 270 + angleOffset;
   let arcEnd = 270 - angleOffset;
@@ -183,23 +178,23 @@ function trees(x, y, animation, pScope) {
   // fill(0, 0, 255)
 
   // draw trees from angle arcStart to arcEnd offset from the middle by landHeight
-  let treeCount = 4;
-  let treeWidth = 30;
-  let treeHeight = 140;
+  let treeCount = 2;
+  let treeWidth = 40;
+  let treeHeight = 220;
   let speed = 0.02;
   // drawTrees(treeCount, treeWidth, treeHeight, arcStart, arcEnd, landHeight, speed);
   drawTrees(treeCount, treeWidth, treeHeight, arcStart + angleOffset / 2, arcEnd + angleOffset / 2, landHeight, speed);
 
 
-  treeCount = 2;
-  treeWidth = 20;
-  treeHeight = 120;
+  treeCount = 3;
+  treeWidth = 30;
+  treeHeight = 200;
   speed = 0.015;
   drawTrees(treeCount, treeWidth, treeHeight, arcStart + angleOffset / 2, arcEnd + angleOffset / 2, landHeight, speed);
   
-  treeCount = 12;
-  treeWidth = 10;
-  treeHeight = 80;
+  treeCount = 4;
+  treeWidth = 20;
+  treeHeight = 160;
   speed = 0.01;
   drawTrees(treeCount, treeWidth, treeHeight, arcStart + angleOffset / 2, arcEnd + angleOffset / 2, landHeight, speed);
   
@@ -235,7 +230,7 @@ function lake(x, y, animation, pScope) {
 
   // create shape
   let startAngle = 270
-  let waterLevel = 450;
+  let waterLevel = 300;
   let waveHeight = 12;
   let time = animation.frame * 360;
 
@@ -304,40 +299,42 @@ function fireflies(x, y, animation, pScope) {
   let backgroundArcEnd = 270 - angleOffset;
 
   // draw fireflies
-  let fireflyCount = 2;
+  let fireflyCount = 1;
   let fireflySize = 10;
-  let fireflyOffset = 0;
-  let fireflyHeight = 600;
+  let fireflyOffset = -2;
+  let fireflyHeight = 520;
   drawFireflies(fireflyCount, fireflySize, backgroundArcStart + angleOffset / 2, backgroundArcEnd + angleOffset / 2, fireflyOffset, fireflyHeight, 0);
    
-  fireflyHeight = 650;
-  fireflyOffset = 20;
+  fireflyCount = 2;
+  fireflyHeight = 450;
+  fireflyOffset = 2;
   fireflySize = 8;
-  fireflyCount = 1;
   drawFireflies(fireflyCount, fireflySize, backgroundArcStart + angleOffset / 2, backgroundArcEnd + angleOffset / 2, fireflyOffset, fireflyHeight, 0);
   
-  fireflyHeight = 550;
-  fireflyOffset = 0;
+  fireflyCount = 1;
+  fireflyHeight = 400;
+  fireflyOffset = -5;
   fireflySize = 9;
-  fireflyCount = 1;
   drawFireflies(fireflyCount, fireflySize, backgroundArcStart + angleOffset / 2, backgroundArcEnd + angleOffset / 2, fireflyOffset, fireflyHeight, 0);
-  
+
   function drawFireflies(fireflyCount, fireflySize, arcStart, arcEnd, fireflyOffset, fireflyHeight) {
     noStroke();
     for (let i = 0; i < fireflyCount; i++) {
-      let rotation = ((arcEnd - arcStart) / fireflyCount * i) + (animation.frame * angleOffset *2)/ fireflyCount + fireflyOffset;
-      if(rotation/fireflyCount + fireflyOffset < -6.9 || rotation/fireflyCount - fireflyOffset > 26){
-        continue;
-      }
+      let rotation = ((arcEnd - arcStart) / fireflyCount * i) + fireflyOffset + sin( (animation.frame * 360 + (i-1)*180 + fireflyOffset*30) )/5;
+     
+      // let opacity = (((animation.wave(1) ) )* 360);
+      // let opacity = animation.wave(1) * 360;
+      let opacity = sin( (animation.frame * 360 + (i-1)*90 + fireflyOffset*30) ) * 140 + 220;
+      
       
       push();
       rotate(rotation);
-      translate(0, -fireflyHeight - animation.wave(1) * 20);
+      translate(0, -fireflyHeight - sin( (animation.frame * 360 + (i)*180 + fireflyOffset*30) ) * 6);
       // blur
-      fill(20, 300, 360);
+      fill(20, 300, 360, opacity);
       drawingContext.filter = 'blur(20px)';
       rect(-fireflySize * 2, -fireflySize, fireflySize * 4, fireflySize * 4);
-      fill(20, 300, 250);
+      fill(20, 300, 250, opacity);
       
       drawingContext.filter = 'none';
       rect(0, 0, fireflySize, fireflySize);

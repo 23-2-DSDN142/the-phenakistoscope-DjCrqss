@@ -28,7 +28,7 @@ function setup_layers(pScope) {
   strokeCap(SQUARE);
 
   var layer6 = new PLayer(bubbles);
-  layer6.set_boundary(0, 400);
+  layer6.set_boundary(0, 300);
   layer6.mode(SWIRL(10));
 
   // // trees
@@ -174,7 +174,7 @@ function trees(x, y, animation, pScope) {
 
   noStroke();
 
-  fill(16, 200, 20);
+  
   // fill(0, 0, 255)
 
   // draw trees from angle arcStart to arcEnd offset from the middle by landHeight
@@ -204,14 +204,31 @@ function trees(x, y, animation, pScope) {
     for (let i = 0; i < treeCount; i++) {
       push();
       let rotation = ((arcEnd - arcStart) / treeCount * i) + (animation.frame * angleOffset *2)/treeCount;
+
+      // let progress = (rotation) / (angleOffset * 2);
+      let progress = animation.frame - 0.5;
+
+      fill(16, 0, 0);
       rotate((-1.5 * angleOffset) + rotation % (angleOffset * 4) + (angleOffset * 2));
       translate(0, -landHeight);
       // trunk
       rect(0, 0, treeWidth, -treeHeight);
       // leaves
+      fill(16, 0, 0);
       triangle(-treeWidth + treeWidth / 2, -treeHeight * 0.95, treeWidth / 2, -treeHeight * 1.3, treeWidth + treeWidth / 2, -treeHeight * 0.95 - 1);
       triangle(-treeWidth * 2 + treeWidth / 2, -treeHeight * 0.7, treeWidth / 2, -treeHeight * 1.1, treeWidth * 2 + treeWidth / 2, -treeHeight * 0.7 - 1);
       triangle(-treeWidth * 3 + treeWidth / 2, -treeHeight * 0.34, treeWidth / 2, -treeHeight * 0.8, treeWidth * 3 + treeWidth / 2, -treeHeight * 0.34 - 1);
+      stroke(16, 0, Math.abs(progress) * 150);
+      strokeWeight(2);
+      line(treeWidth/2, -treeHeight * 1.3 , -treeWidth + treeWidth / 2 , -treeHeight);
+      line(-treeWidth * 2 + treeWidth / 2, -treeHeight * 0.7, 0, -treeHeight);
+      line(-treeWidth * 2 + treeWidth / 2, -treeHeight * 0.5, 0, -treeHeight*0.7);
+      progress = (1-animation.frame) ;
+      stroke(16, 0, Math.abs(progress) * 100);
+      
+      line(treeWidth/2, -treeHeight * 1.3 , treeWidth + treeWidth / 2  , -treeHeight);
+      line(treeWidth * 2 + treeWidth / 2, -treeHeight * 0.7, treeWidth/2 + treeWidth/3, -treeHeight);
+      line(treeWidth * 2 + treeWidth / 2, -treeHeight * 0.5, treeWidth/2 + treeWidth, -treeHeight*0.7);
       pop();
     }
 
@@ -345,12 +362,11 @@ function fireflies(x, y, animation, pScope) {
 
 
 function bubbles(x, y, animation, pScope) {
-  // animation.frame goes from 0 to 1, let brightness go from 0 to 1 and back to 0
   let brightness = Math.sin(animation.frame * PI);
 
   noStroke();
   fill(180, 150, 255, brightness * 80);
-  circle(x + animation.wave(1.1) * 100, y, 7);
+  circle(x + animation.wave(.9) * 100, y, 7);
 }
 
 function mask(x, y, animation, pScope) {

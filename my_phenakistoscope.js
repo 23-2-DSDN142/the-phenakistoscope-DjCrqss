@@ -1,7 +1,7 @@
 const SLICE_COUNT = 12;
 
 // activates mask for frame views
-const output_mode = 'ANIMATED_DISK';
+const doSliceMask = false;
 
 function setup_pScope(pScope) {
   pScope.output_mode(ANIMATED_DISK);
@@ -27,11 +27,12 @@ function setup_layers(pScope) {
   layer2.mode(RING);
   strokeCap(SQUARE);
 
+  // bubbles in lake
   var layer6 = new PLayer(bubbles);
   layer6.set_boundary(0, 300);
   layer6.mode(SWIRL(10));
 
-  // // trees
+  // trees
   var layer3 = new PLayer(trees);
   layer3.mode(RING);
 
@@ -39,7 +40,8 @@ function setup_layers(pScope) {
   var layer5 = new PLayer(fireflies);
   layer5.mode(RING);
 
-  if (output_mode == 'ANIMATED_FRAME' || output_mode == 'STATIC_FRAME') {
+  // mask
+  if (doSliceMask) {
     var layermask = new PLayer(mask);
     layermask.mode(RING);
   }
@@ -170,8 +172,6 @@ function trees(x, y, animation, pScope) {
   let arcStart = 270 + angleOffset;
   let arcEnd = 270 - angleOffset;
 
-  // console.log(pScope.output_mode);
-
   noStroke();
 
   
@@ -183,48 +183,56 @@ function trees(x, y, animation, pScope) {
   let treeHeight = 220;
   let speed = 0.02;
   // drawTrees(treeCount, treeWidth, treeHeight, arcStart, arcEnd, landHeight, speed);
-  drawTrees(treeCount, treeWidth, treeHeight, arcStart + angleOffset / 2, arcEnd + angleOffset / 2, landHeight, speed);
+  drawTrees(treeCount, treeWidth, treeHeight, arcStart + angleOffset / 2, arcEnd + angleOffset / 2, landHeight, speed, 1);
 
 
   treeCount = 3;
   treeWidth = 30;
   treeHeight = 200;
   speed = 0.015;
-  drawTrees(treeCount, treeWidth, treeHeight, arcStart + angleOffset / 2, arcEnd + angleOffset / 2, landHeight, speed);
+  drawTrees(treeCount, treeWidth, treeHeight, arcStart + angleOffset / 2, arcEnd + angleOffset / 2, landHeight, speed, 2);
   
   treeCount = 4;
   treeWidth = 20;
   treeHeight = 160;
   speed = 0.01;
-  drawTrees(treeCount, treeWidth, treeHeight, arcStart + angleOffset / 2, arcEnd + angleOffset / 2, landHeight, speed);
+  drawTrees(treeCount, treeWidth, treeHeight, arcStart + angleOffset / 2, arcEnd + angleOffset / 2, landHeight, speed, 3);
   
 
   // draw trees from angle arcStart to arcEnd offset from the middle by landHeight
-  function drawTrees(treeCount, treeWidth, treeHeight, arcStart, arcEnd, landHeight, speed) {
+  function drawTrees(treeCount, treeWidth, treeHeight, arcStart, arcEnd, landHeight, speed, layer) {
     for (let i = 0; i < treeCount; i++) {
+
+      if(animation.frame > 0.9 && i == 0 && layer != 3){
+        continue;
+      }
+
       push();
-      let rotation = ((arcEnd - arcStart) / treeCount * i) + (animation.frame * angleOffset *2)/treeCount;
+      let rotation = ((arcEnd - arcStart) / treeCount * i) + (animation.frame * angleOffset*2)/treeCount;
 
       // let progress = (rotation) / (angleOffset * 2);
       let progress = animation.frame - 0.5;
 
-      fill(16, 0, 0);
       rotate((-1.5 * angleOffset) + rotation % (angleOffset * 4) + (angleOffset * 2));
       translate(0, -landHeight);
       // trunk
+      fill(16, 200, Math.abs(progress)*50);
       rect(0, 0, treeWidth, -treeHeight);
       // leaves
-      fill(16, 0, 0);
+      fill(80, 200, 10*layer + Math.abs(progress)*20);
       triangle(-treeWidth + treeWidth / 2, -treeHeight * 0.95, treeWidth / 2, -treeHeight * 1.3, treeWidth + treeWidth / 2, -treeHeight * 0.95 - 1);
       triangle(-treeWidth * 2 + treeWidth / 2, -treeHeight * 0.7, treeWidth / 2, -treeHeight * 1.1, treeWidth * 2 + treeWidth / 2, -treeHeight * 0.7 - 1);
       triangle(-treeWidth * 3 + treeWidth / 2, -treeHeight * 0.34, treeWidth / 2, -treeHeight * 0.8, treeWidth * 3 + treeWidth / 2, -treeHeight * 0.34 - 1);
-      stroke(16, 0, Math.abs(progress) * 150);
-      strokeWeight(2);
+      // shines
+      stroke(16, 0, Math.abs(progress) * 180);
+      strokeWeight(3);
       line(treeWidth/2, -treeHeight * 1.3 , -treeWidth + treeWidth / 2 , -treeHeight);
       line(-treeWidth * 2 + treeWidth / 2, -treeHeight * 0.7, 0, -treeHeight);
       line(-treeWidth * 2 + treeWidth / 2, -treeHeight * 0.5, 0, -treeHeight*0.7);
-      progress = (1-animation.frame) ;
-      stroke(16, 0, Math.abs(progress) * 100);
+
+      progress = animation.frame - 1;
+      
+      stroke(16, 0, Math.abs(progress) * 90);
       
       line(treeWidth/2, -treeHeight * 1.3 , treeWidth + treeWidth / 2  , -treeHeight);
       line(treeWidth * 2 + treeWidth / 2, -treeHeight * 0.7, treeWidth/2 + treeWidth/3, -treeHeight);
@@ -235,13 +243,27 @@ function trees(x, y, animation, pScope) {
   }
 }
 
+
+function createWaterSegment(waterColor , surfaceHue, surfaceSaturation, x, y, startAngle, waterLevel, waveHeight, time, moonAngle, angleOffset, pScope) {
+  beginShape();
+  vertex(x, y);
+  // creates a sine wave from startAngle of segment to the end
+  for (let angle = 0; angle <= 360 / SLICE_COUNT; angle += 0.5) {
+    let radius = waterLevel + cos(angle * 12 + time) * waveHeight;
+    vertex(radius * cos(startAngle - angle), radius * sin(startAngle - angle));
+    // draw water shine
+    let dist = Math.abs((moonAngle - angleOffset/2) - radians(startAngle - angle + angleOffset));
+    fill(surfaceHue, surfaceSaturation, 250, Math.max(0, 40 - dist*5));
+    circle(radius * cos(startAngle - angle + angleOffset), radius * sin(startAngle - angle + angleOffset), 5);
+  }
+  vertex(x, y);
+  fill(waterColor);
+  endShape();
+}
+
 function lake(x, y, animation, pScope) {
 
-  // this is how you set up a background for a specific layer
   let angleOffset = (360 / SLICE_COUNT) / 2;
-  let backgroundArcStart = 270 + angleOffset;
-  let backgroundArcEnd = 270 - angleOffset;
-
 
   noStroke();
 
@@ -250,6 +272,8 @@ function lake(x, y, animation, pScope) {
   let waterLevel = 300;
   let waveHeight = 12;
   let time = animation.frame * 360;
+  // used for water shine
+  const moonAngle = ((-animation.frame * (angleOffset * 2)) + angleOffset);
 
 
   fill(200, 100, 50, 360);
@@ -258,28 +282,45 @@ function lake(x, y, animation, pScope) {
   for (let angle = 0; angle <= 360 / SLICE_COUNT; angle += 0.5) {
     let radius = waterLevel + 35 + cos(angle * 12 + time + 50) * waveHeight;
     vertex(radius * cos(startAngle - angle + angleOffset), radius * sin(startAngle - angle + angleOffset));
+    // draw water shine
+    let dist = Math.abs((moonAngle - angleOffset/2) - radians(startAngle - angle + angleOffset));
+    // let surfaceColor = color(200, 100, 50);
+    fill(200, 100, 250, Math.max(0, 40 - dist*5));
+    circle(radius * cos(startAngle - angle + angleOffset), radius * sin(startAngle - angle + angleOffset), 10);
   }
   vertex(x, y);
+  fill(200, 100, 50, 360);
   endShape();
+ 
+  
+  // createWaterSegment(color(200, 100, 50), 200, 100, x, y, startAngle, waterLevel, waveHeight, time, moonAngle, angleOffset, pScope);
 
-  fill(180, 170, 90, 80);
   beginShape();
   vertex(x, y);
   for (let angle = 0; angle <= 360 / SLICE_COUNT; angle += 0.5) {
     let radius = waterLevel + 25 + cos(angle * 12 + time + 180) * waveHeight;
     vertex(radius * cos(startAngle - angle + angleOffset), radius * sin(startAngle - angle + angleOffset));
+    // draw water shine
+    let dist = Math.abs((moonAngle - angleOffset/2) - radians(startAngle - angle + angleOffset));
+    fill(180, 170, 250, Math.max(0, 40 - dist*5));
+    circle(radius * cos(startAngle - angle + angleOffset), radius * sin(startAngle - angle + angleOffset), 5);
   }
   vertex(x, y);
+  fill(180, 170, 90, 80);
   endShape();
 
-  fill(200, 220, 100, 80);
   beginShape();
   vertex(x, y);
   for (let angle = 0; angle <= 360 / SLICE_COUNT; angle += 0.5) {
     let radius = waterLevel + cos(angle * 12 + time) * waveHeight;
     vertex(radius * cos(startAngle - angle + angleOffset), radius * sin(startAngle - angle + angleOffset));
+    // draw water shine
+    let dist = Math.abs((moonAngle - angleOffset/2) - radians(startAngle - angle + angleOffset));
+    fill(200, 220, 250, Math.max(0, 40 - dist*5));
+    circle(radius * cos(startAngle - angle + angleOffset), radius * sin(startAngle - angle + angleOffset), 5);
   }
   vertex(x, y);
+  fill(200, 220, 100, 80);
   endShape();
 
 
@@ -295,6 +336,12 @@ function lake(x, y, animation, pScope) {
   for (let angle = 0; angle < 360 / SLICE_COUNT; angle += 0.5) {
     let radius = waterLevel - 20 + cos(angle * 12 + time + 80) * waveHeight;
     vertex(radius * cos(startAngle - angle + angleOffset), radius * sin(startAngle - angle + angleOffset));
+    push();
+     // draw water shine
+     let dist = Math.abs((moonAngle - angleOffset/2) - radians(startAngle - angle + angleOffset));
+     fill(200, 220, 250, Math.max(0, 40 - dist*5));
+     circle(radius * cos(startAngle - angle + angleOffset), radius * sin(startAngle - angle + angleOffset), 5);
+      pop();
   }
   vertex(x, y);
   endShape();

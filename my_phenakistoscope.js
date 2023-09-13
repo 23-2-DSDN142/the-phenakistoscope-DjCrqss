@@ -48,12 +48,15 @@ function setup_layers(pScope) {
 
 }
 
+/**
+ * Draws the sky and grass
+ */
 function bg(x, y, animation, pScope) {
   let angleOffset = (360 / SLICE_COUNT) / 2;
   let backgroundArcStart = 270 - angleOffset;
   let backgroundArcEnd = 270 + angleOffset;
 
-
+  // sky is a radial gradient from red to purple
   push();
   radialGradient(
     x, y, 1200,//Start pX, pY, start circle radius
@@ -64,27 +67,29 @@ function bg(x, y, animation, pScope) {
   arc(x, y, 2000, 2000, backgroundArcStart, backgroundArcEnd);
   pop();
 
+  // ground is just green
   noStroke();
   fill(96, 135, 30)
   let landHeight = 1050;
   arc(x, y, landHeight, landHeight, backgroundArcStart, backgroundArcEnd);
 }
 
+/**
+ * Handles drawing moon in sky
+ */
 function moon(x, y, animation, pScope) {
   let angleOffset = (360 / SLICE_COUNT) / 2;
-  let backgroundArcStart = 270 + angleOffset;
-  let backgroundArcEnd = 270 - angleOffset;
-  // draw moon
   let moonHeight = 800;
-
+  
+  // draw moon
   const moonAngle = ((-animation.frame * (angleOffset * 2)) + 4*angleOffset);
-  // const moonAngle = angleOffset;
   push();
   rotate(moonAngle);
   translate(0, -moonHeight);
   drawMoonPhase();
   pop();
 
+  // draw extra moon as each slice is offset
   if(animation.frame == 0){
     const moonAngle2 = ((-animation.frame * (angleOffset * 2)) + 4* angleOffset);
     push();
@@ -95,6 +100,9 @@ function moon(x, y, animation, pScope) {
   }
 
 
+  /**
+   * Draws moon at certain phase
+   */
   function drawMoonPhase() {
     let dark = color(295, 180, 45);
     let light = color(255, 0, 280);
@@ -103,11 +111,14 @@ function moon(x, y, animation, pScope) {
     noStroke();
     ellipseMode(CENTER);
 
-    // moon
+    // angle of moon
     a = animation.frame * 360;
 
     noStroke();
 
+    // colours for moon
+    // the moon is made up of 4 arcs, 2 per side, that grow and shrink and
+    // swap colours to create the illusion of a moon phase
     let color1;
     let color2;
     let color3;
@@ -134,30 +145,31 @@ function moon(x, y, animation, pScope) {
       color2 = light;
     }
 
-    // add glow
+    // add glow to mooon
     drawingContext.filter = 'blur(18px)';
     fill(light);
     // circle(a/4, 0, moonRadius);
     circle(0, 0, moonRadius/1.2);
     drawingContext.filter = 'none';
 
+    // draw moon
     fill(color1);
     circle(0, 0, moonRadius);
-    // let widthMoonPhase = map(Math.sin(a), -1, 1, -moonRadius, moonRadius);
+    // left side of moon
     arc(0, 0, moonRadius, moonRadius, degrees(PI / 2), degrees(3 * PI / 2));
     fill(color2);
     arc(0, 0, moonRadius, moonRadius, degrees(3 * PI / 2), degrees(PI / 2));
 
-
-
     let heightPhase = moonRadius;
     let widthPhase = map(cos(a), 0, 1, 0, moonRadius);
 
+    // right side of moon
     fill(color3);
     arc(0, 0, widthPhase - 2, heightPhase + 1, degrees(PI / 2), degrees(3 * PI / 2));
     fill(color4);
     arc(0, 0, widthPhase - 2, heightPhase + 1, degrees(3 * PI / 2), degrees(PI / 2));
 
+    // extra line in middle to cover pixel gaps
     stroke(color3);
     noFill();
     strokeWeight(2);
@@ -166,7 +178,11 @@ function moon(x, y, animation, pScope) {
 
 }
 
+/**
+ * Draws trees with leaves and shines
+ */
 function trees(x, y, animation, pScope) {
+  // parameters for trees
   let landHeight = 525;
   let angleOffset = (360 / SLICE_COUNT) / 2;
   let arcStart = 270 + angleOffset;
@@ -174,24 +190,21 @@ function trees(x, y, animation, pScope) {
 
   noStroke();
 
-  
-  // fill(0, 0, 255)
-
   // draw trees from angle arcStart to arcEnd offset from the middle by landHeight
   let treeCount = 2;
   let treeWidth = 40;
   let treeHeight = 220;
   let speed = 0.02;
-  // drawTrees(treeCount, treeWidth, treeHeight, arcStart, arcEnd, landHeight, speed);
   drawTrees(treeCount, treeWidth, treeHeight, arcStart + angleOffset / 2, arcEnd + angleOffset / 2, landHeight, speed, 1);
 
-
+  // another layer of trees
   treeCount = 3;
   treeWidth = 30;
   treeHeight = 200;
   speed = 0.015;
   drawTrees(treeCount, treeWidth, treeHeight, arcStart + angleOffset / 2, arcEnd + angleOffset / 2, landHeight, speed, 2);
   
+  // another layer of trees
   treeCount = 4;
   treeWidth = 20;
   treeHeight = 160;
@@ -202,16 +215,14 @@ function trees(x, y, animation, pScope) {
   // draw trees from angle arcStart to arcEnd offset from the middle by landHeight
   function drawTrees(treeCount, treeWidth, treeHeight, arcStart, arcEnd, landHeight, speed, layer) {
     for (let i = 0; i < treeCount; i++) {
-
+      // skip if last frame and first tree to reduce flickering
       if(animation.frame > 0.9 && i == 0 && layer != 3){
         continue;
       }
 
       push();
       let rotation = ((arcEnd - arcStart) / treeCount * i) + (animation.frame * angleOffset*2)/treeCount;
-
-      // let progress = (rotation) / (angleOffset * 2);
-      let progress = animation.frame - 0.5;
+      let progress = animation.frame - 0.5; // used for shine on tree edges
 
       rotate((-1.5 * angleOffset) + rotation % (angleOffset * 4) + (angleOffset * 2));
       translate(0, -landHeight);
@@ -223,17 +234,15 @@ function trees(x, y, animation, pScope) {
       triangle(-treeWidth + treeWidth / 2, -treeHeight * 0.95, treeWidth / 2, -treeHeight * 1.3, treeWidth + treeWidth / 2, -treeHeight * 0.95 - 1);
       triangle(-treeWidth * 2 + treeWidth / 2, -treeHeight * 0.7, treeWidth / 2, -treeHeight * 1.1, treeWidth * 2 + treeWidth / 2, -treeHeight * 0.7 - 1);
       triangle(-treeWidth * 3 + treeWidth / 2, -treeHeight * 0.34, treeWidth / 2, -treeHeight * 0.8, treeWidth * 3 + treeWidth / 2, -treeHeight * 0.34 - 1);
-      // shines
+      // shines, left side
       stroke(16, 0, Math.abs(progress) * 180);
       strokeWeight(3);
       line(treeWidth/2, -treeHeight * 1.3 , -treeWidth + treeWidth / 2 +5, -treeHeight);
       line(-treeWidth * 2 + treeWidth / 2, -treeHeight * 0.7, 0, -treeHeight);
       line(-treeWidth * 2 + treeWidth / 2, -treeHeight * 0.5, 0, -treeHeight*0.7);
-
+      // right side of tree shine
       progress = animation.frame - 1;
-      
       stroke(16, 0, Math.abs(progress) * 90);
-      
       line(treeWidth/2, -treeHeight * 1.3, treeWidth + treeWidth / 2  -5, -treeHeight);
       line(treeWidth * 2 + treeWidth / 2, -treeHeight * 0.7, treeWidth/2 + treeWidth/3, -treeHeight);
       line(treeWidth * 2 + treeWidth / 2, -treeHeight * 0.5, treeWidth/2 + treeWidth, -treeHeight*0.7);
@@ -244,38 +253,22 @@ function trees(x, y, animation, pScope) {
 }
 
 
-function createWaterSegment(waterColor , surfaceHue, surfaceSaturation, x, y, startAngle, waterLevel, waveHeight, time, moonAngle, angleOffset, pScope) {
-  beginShape();
-  vertex(x, y);
-  // creates a sine wave from startAngle of segment to the end
-  for (let angle = 0; angle <= 360 / SLICE_COUNT; angle += 0.5) {
-    let radius = waterLevel + cos(angle * 11 + time) * waveHeight;
-    vertex(radius * cos(startAngle - angle), radius * sin(startAngle - angle));
-    // draw water shine
-    let dist = Math.abs((moonAngle - angleOffset/2) - radians(startAngle - angle + angleOffset));
-    fill(surfaceHue, surfaceSaturation, 250, Math.max(0, 40 - dist*5));
-    circle(radius * cos(startAngle - angle + angleOffset), radius * sin(startAngle - angle + angleOffset), 5);
-  }
-  vertex(x, y);
-  fill(waterColor);
-  endShape();
-}
-
+/**
+ * Draws a lake with water waves
+ */
 function lake(x, y, animation, pScope) {
-
   let angleOffset = (360 / SLICE_COUNT) / 2;
-
   noStroke();
 
-  // create shape
+  // parameters for water waves
   let startAngle = 270
   let waterLevel = 300;
   let waveHeight = 12;
   let time = animation.frame * 360;
-  // used for water shine
+  // used for calculating water shine
   const moonAngle = ((-animation.frame * (angleOffset * 2)) + angleOffset);
 
-
+  // water segment
   fill(200, 100, 50, 360);
   beginShape();
   vertex(x, y);
@@ -292,9 +285,7 @@ function lake(x, y, animation, pScope) {
   fill(200, 100, 50, 360);
   endShape();
  
-  
-  // createWaterSegment(color(200, 100, 50), 200, 100, x, y, startAngle, waterLevel, waveHeight, time, moonAngle, angleOffset, pScope);
-
+  // water segment
   beginShape();
   vertex(x, y);
   for (let angle = 0; angle <= 360 / SLICE_COUNT; angle += 0.5) {
@@ -309,6 +300,7 @@ function lake(x, y, animation, pScope) {
   fill(180, 170, 90, 80);
   endShape();
 
+  // water segment
   beginShape();
   vertex(x, y);
   for (let angle = 0; angle <= 360 / SLICE_COUNT; angle += 0.5) {
@@ -323,7 +315,7 @@ function lake(x, y, animation, pScope) {
   fill(200, 220, 100, 80);
   endShape();
 
-
+  // Inner water segment with radial gradient to fade to black in the middle
   push();
   radialGradient(
     x, y, 0,//Start pX, pY, start circle radius
@@ -347,22 +339,20 @@ function lake(x, y, animation, pScope) {
   endShape();
   pop();
 
-
-
-
   noStroke();
   fill(255)
-  // rect(-10,-300-animation.wave()*50,20,20) // .wave is a cosine wave btw
-
 }
 
 
+/**
+ * Draws fireflies on the ground
+ */
 function fireflies(x, y, animation, pScope) {
   let angleOffset = (360 / SLICE_COUNT) / 2;
   let backgroundArcStart = 270 + angleOffset;
   let backgroundArcEnd = 270 - angleOffset;
 
-  // draw fireflies
+  // draw fireflies with parameters
   let fireflyCount = 1;
   let fireflySize = 10;
   let fireflyOffset = -2;
@@ -381,25 +371,22 @@ function fireflies(x, y, animation, pScope) {
   fireflySize = 9;
   drawFireflies(fireflyCount, fireflySize, backgroundArcStart + angleOffset / 2, backgroundArcEnd + angleOffset / 2, fireflyOffset, fireflyHeight, 0);
 
+  // function to draw fireflies
   function drawFireflies(fireflyCount, fireflySize, arcStart, arcEnd, fireflyOffset, fireflyHeight) {
     noStroke();
     for (let i = 0; i < fireflyCount; i++) {
       let rotation = ((arcEnd - arcStart) / fireflyCount * i) + fireflyOffset + sin( (animation.frame * 360 + (i-1)*180 + fireflyOffset*30) )/5;
-     
-      // let opacity = (((animation.wave(1) ) )* 360);
-      // let opacity = animation.wave(1) * 360;
       let opacity = sin( (animation.frame * 360 + (i-1)*90 + fireflyOffset*30) ) * 140 + 220;
-      
       
       push();
       rotate(rotation);
       translate(0, -fireflyHeight - sin( (animation.frame * 360 + (i)*180 + fireflyOffset*30) ) * 6);
-      // blur
+      // draw glow of firefly with blurred pixel
       fill(20, 300, 360, opacity);
       drawingContext.filter = 'blur(20px)';
       rect(-fireflySize * 2, -fireflySize, fireflySize * 4, fireflySize * 4);
       fill(20, 300, 250, opacity);
-      
+      // draw pixels of firefly
       drawingContext.filter = 'none';
       rect(0, 0, fireflySize, fireflySize);
       pop();
@@ -408,6 +395,10 @@ function fireflies(x, y, animation, pScope) {
 }
 
 
+/**
+ * Draws a bubble in the lake
+ * The position is modified by the animation's wave function
+ */
 function bubbles(x, y, animation, pScope) {
   let brightness = Math.sin(animation.frame * PI);
 
@@ -416,6 +407,9 @@ function bubbles(x, y, animation, pScope) {
   circle(x + animation.wave(.9) * 100, y, 7);
 }
 
+/**
+ * draws a mask for the phenakistoscope's single slice
+ */
 function mask(x, y, animation, pScope) {
   let angleOffset = (360 / SLICE_COUNT) / 2;
   let arcStart = 270 + angleOffset;
@@ -427,7 +421,7 @@ function mask(x, y, animation, pScope) {
 }
 
 
-// HELPER FUNCTIONS
+// HELPER FUNCTIONS from previous assignment
 /** 
  * draws a linear gradient given starting and ending X and Y coordinates and colours
  * uses javascript's drawing context rather than p5 as it is much more efficient
@@ -446,7 +440,6 @@ function linearGradient(sX, sY, eX, eY, colorS, colorE) {
   gradient.addColorStop(1, colorE);
   drawingContext.fillStyle = gradient;
 }
-
 
 function radialGradient(sX, sY, sR, eX, eY, eR, colorS, colorE) {
   let gradient = drawingContext.createRadialGradient(

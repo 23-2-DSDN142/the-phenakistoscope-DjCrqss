@@ -4,7 +4,7 @@ const SLICE_COUNT = 12;
 const doSliceMask = false;
 
 function setup_pScope(pScope) {
-  pScope.output_mode(ANIMATED_DISK);
+  pScope.output_mode(OUTPUT_PRINT(A3));
   pScope.scale_for_screen(true);
   pScope.draw_layer_boundaries(false);
   pScope.set_direction(CCW);
@@ -77,7 +77,7 @@ function moon(x, y, animation, pScope) {
   // draw moon
   let moonHeight = 800;
 
-  const moonAngle = ((-animation.frame * (angleOffset * 2)) + angleOffset);
+  const moonAngle = ((-animation.frame * (angleOffset * 2)) + 4*angleOffset);
   // const moonAngle = angleOffset;
   push();
   rotate(moonAngle);
@@ -86,7 +86,7 @@ function moon(x, y, animation, pScope) {
   pop();
 
   if(animation.frame == 0){
-    const moonAngle2 = ((-animation.frame * (angleOffset * 2)) + angleOffset);
+    const moonAngle2 = ((-animation.frame * (angleOffset * 2)) + 4* angleOffset);
     push();
     rotate(moonAngle2 - angleOffset*2);
     translate(0, -moonHeight);
@@ -226,7 +226,7 @@ function trees(x, y, animation, pScope) {
       // shines
       stroke(16, 0, Math.abs(progress) * 180);
       strokeWeight(3);
-      line(treeWidth/2, -treeHeight * 1.3 , -treeWidth + treeWidth / 2 , -treeHeight);
+      line(treeWidth/2, -treeHeight * 1.3 , -treeWidth + treeWidth / 2 +5, -treeHeight);
       line(-treeWidth * 2 + treeWidth / 2, -treeHeight * 0.7, 0, -treeHeight);
       line(-treeWidth * 2 + treeWidth / 2, -treeHeight * 0.5, 0, -treeHeight*0.7);
 
@@ -234,7 +234,7 @@ function trees(x, y, animation, pScope) {
       
       stroke(16, 0, Math.abs(progress) * 90);
       
-      line(treeWidth/2, -treeHeight * 1.3 , treeWidth + treeWidth / 2  , -treeHeight);
+      line(treeWidth/2, -treeHeight * 1.3, treeWidth + treeWidth / 2  -5, -treeHeight);
       line(treeWidth * 2 + treeWidth / 2, -treeHeight * 0.7, treeWidth/2 + treeWidth/3, -treeHeight);
       line(treeWidth * 2 + treeWidth / 2, -treeHeight * 0.5, treeWidth/2 + treeWidth, -treeHeight*0.7);
       pop();
@@ -249,7 +249,7 @@ function createWaterSegment(waterColor , surfaceHue, surfaceSaturation, x, y, st
   vertex(x, y);
   // creates a sine wave from startAngle of segment to the end
   for (let angle = 0; angle <= 360 / SLICE_COUNT; angle += 0.5) {
-    let radius = waterLevel + cos(angle * 12 + time) * waveHeight;
+    let radius = waterLevel + cos(angle * 11 + time) * waveHeight;
     vertex(radius * cos(startAngle - angle), radius * sin(startAngle - angle));
     // draw water shine
     let dist = Math.abs((moonAngle - angleOffset/2) - radians(startAngle - angle + angleOffset));
@@ -280,7 +280,7 @@ function lake(x, y, animation, pScope) {
   beginShape();
   vertex(x, y);
   for (let angle = 0; angle <= 360 / SLICE_COUNT; angle += 0.5) {
-    let radius = waterLevel + 35 + cos(angle * 12 + time + 50) * waveHeight;
+    let radius = waterLevel + 35 + cos(angle * 11 + time + 50) * waveHeight;
     vertex(radius * cos(startAngle - angle + angleOffset), radius * sin(startAngle - angle + angleOffset));
     // draw water shine
     let dist = Math.abs((moonAngle - angleOffset/2) - radians(startAngle - angle + angleOffset));
@@ -298,7 +298,7 @@ function lake(x, y, animation, pScope) {
   beginShape();
   vertex(x, y);
   for (let angle = 0; angle <= 360 / SLICE_COUNT; angle += 0.5) {
-    let radius = waterLevel + 25 + cos(angle * 12 + time + 180) * waveHeight;
+    let radius = waterLevel + 25 + cos(angle * 11 + time + 180) * waveHeight;
     vertex(radius * cos(startAngle - angle + angleOffset), radius * sin(startAngle - angle + angleOffset));
     // draw water shine
     let dist = Math.abs((moonAngle - angleOffset/2) - radians(startAngle - angle + angleOffset));
@@ -312,7 +312,7 @@ function lake(x, y, animation, pScope) {
   beginShape();
   vertex(x, y);
   for (let angle = 0; angle <= 360 / SLICE_COUNT; angle += 0.5) {
-    let radius = waterLevel + cos(angle * 12 + time) * waveHeight;
+    let radius = waterLevel + cos(angle * 11 + time) * waveHeight;
     vertex(radius * cos(startAngle - angle + angleOffset), radius * sin(startAngle - angle + angleOffset));
     // draw water shine
     let dist = Math.abs((moonAngle - angleOffset/2) - radians(startAngle - angle + angleOffset));
@@ -334,7 +334,7 @@ function lake(x, y, animation, pScope) {
   beginShape();
   vertex(x, y);
   for (let angle = 0; angle < 360 / SLICE_COUNT; angle += 0.5) {
-    let radius = waterLevel - 20 + cos(angle * 12 + time + 80) * waveHeight;
+    let radius = waterLevel - 20 + cos(angle * 11 + time + 80) * waveHeight;
     vertex(radius * cos(startAngle - angle + angleOffset), radius * sin(startAngle - angle + angleOffset));
     push();
      // draw water shine
